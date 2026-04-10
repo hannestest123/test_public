@@ -25,10 +25,7 @@ jobs:
           script: |
             const issue = context.payload.issue;
             const action = context.payload.action;
-
-            if (!context.payload.issue) {
-              core.info("Kein Issue vorhanden");
-            }
+            core.info(JSON.stringify(context.payload, null, 2));
 
 
             
