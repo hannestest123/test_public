@@ -32,7 +32,7 @@ jobs:
               .map(s => s.trim())
               .filter(Boolean);
             
-
+            core.info(`Issue labels: ${allowedTypeLabels.join(", ")}`);
             // Read labels from issue and normalize to strings
             const issueLabels = [];
 
