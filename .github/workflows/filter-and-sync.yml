@@ -31,10 +31,11 @@ jobs:
               .split(/\r?\n/)
               .map(s => s.trim())
               .filter(Boolean);
+            
 
             // Read labels from issue and normalize to strings
             const issueLabels = [];
-
+            core.info(`Issue labels: ${issueLabels.join(", ")}`);
             for (const label of issue.labels || []) {
               if (typeof label === "string") {
                 issueLabels.push(label);
