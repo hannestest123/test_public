@@ -26,6 +26,12 @@ jobs:
             const issue = context.payload.issue;
             const action = context.payload.action;
 
+            if (!context.payload.issue) {
+              core.info("Kein Issue vorhanden");
+            }
+
+
+            
             // Parse allowed type labels from a multiline repo variable.
             const allowedTypeLabels = (process.env.TYPE_LABELS || "")
               .split(/\r?\n/)
