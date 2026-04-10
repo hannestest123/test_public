@@ -1,6 +1,6 @@
 name: "Request New Content"
 description: "Use this template to request new topics, examples, etc. you would like to see in the future"
-labels: ["content-request"]
+labels: ["contentrequest"]
 title: "[Content Request] <Topic you want added>"
 body:
   - type: markdown
