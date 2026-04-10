@@ -38,6 +38,7 @@ jobs:
 
             for (const label of issue.labels || []) {
               if (typeof label === "string") {
+                core.info(label);
                 issueLabels.push(label);
               } else if (label && typeof label === "object" && label.name) {
                 issueLabels.push(label.name);
