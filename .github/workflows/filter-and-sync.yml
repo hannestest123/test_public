@@ -35,7 +35,7 @@ jobs:
 
             // Read labels from issue and normalize to strings
             const issueLabels = [];
-            core.info(`Issue labels: ${issueLabels.join(", ")}`);
+
             for (const label of issue.labels || []) {
               if (typeof label === "string") {
                 issueLabels.push(label);
@@ -43,7 +43,7 @@ jobs:
                 issueLabels.push(label.name);
               }
             }
-
+            core.info(`Issue labels: ${issueLabels.join(", ")}`);
             // Keep only labels that are allowed type labels
             const matchedTypeLabels = [];
 
