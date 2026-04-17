@@ -143,17 +143,17 @@ jobs:
             --limit 1 \
             | awk '{print $1}' || true)
             # --> Without "--state all" it searches only open issues --> Closed Issues can create dublicate
-          cat > /tmp/body.md <<EOF
-          ${MARKER}
-
-          **Source:** ${ISSUE_URL}  
-          **From:** @${AUTHOR}  
-          **State (public):** ${STATE}
-
-          ---
-
-          ${BODY}
-          EOF
+          {
+          echo "${MARKER}"
+          echo
+          echo "**Source:** ${ISSUE_URL}"
+          echo "**From:** @${AUTHOR}"
+          echo "**State (public):** ${STATE}"
+          echo
+          echo "---"
+          echo
+          printf '%s\n' "${BODY}"
+          } > /tmp/body.md
 
           # Create Private Issue if new
           if [[ -z "${EXISTING}" || "${EXISTING}" == "null" ]]; then
