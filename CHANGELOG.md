@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.93 — 2026-04-17 06:25:42 UTC
+
+### Book
+- Updated PDF
+
+### Modified
+- book/test.pdf
+- sources/1/main.cpp
+
 ## 1.0 — 2026-04-09 09:20:06 UTC
 
 ### Book
