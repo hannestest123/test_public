@@ -144,7 +144,7 @@ jobs:
             | awk '{print $1}' || true)
             # --> Without "--state all" it searches only open issues --> Closed Issues can create dublicate
           cat > /tmp/body.md <<EOF
-          "$MARKER"
+          $MARKER
 
           **Source:** "$ISSUE_URL"
           **From:** @"$AUTHOR"  
