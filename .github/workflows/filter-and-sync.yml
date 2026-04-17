@@ -133,7 +133,7 @@ jobs:
           set -euo pipefail
 
           # Create hidden marker for syncing back (Unique) 
-          MARKER="<!-- SYNC: public_repo=${PUB_REPO} public_issue=${ISSUE_NUMBER} -->"
+          MARKER="<!-- SYNC: public_repo="$PUB_REPO" public_issue="$ISSUE_NUMBER" -->"
 
           # Find existing private issue by marker
           EXISTING=$(gh issue list \
