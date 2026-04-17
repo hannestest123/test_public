@@ -127,13 +127,14 @@ jobs:
           
           PUB_REPO="$GITHUB_REPOSITORY"
           
-          ISSUE_NUMBER=$(jq -r '.issue.number' "$EVENT")
-          ISSUE_URL=$(jq -r '.issue.html_url' "$EVENT")
-          ACTION=$(jq -r '.action' "$EVENT")
-          TITLE=$(jq -r '.issue.title' "$EVENT")
-          BODY=$(jq -r '.issue.body' "$EVENT")
-          STATE=$(jq -r '.issue.state' "$EVENT")
-          AUTHOR=$(jq -r '.issue.user.login' "$EVENT")
+          PUB_REPO=${GITHUB_REPOSITORY}
+          ISSUE_NUMBER=${{ github.event.issue.number }}
+          ISSUE_URL=${{ github.event.issue.html_url }}
+          ACTION=${{ github.event.action }}
+          TITLE=${{ github.event.issue.title }}
+          BODY=${{ github.event.issue.body }}
+          STATE=${{ github.event.issue.state }}
+          AUTHOR=${{ github.event.issue.user.login }}
 
           # Create hidden marker for syncing back (Unique) 
           MARKER="<!-- SYNC: public_repo=${PUB_REPO} public_issue=${ISSUE_NUMBER} -->"
