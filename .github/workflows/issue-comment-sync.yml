@@ -19,13 +19,13 @@ jobs:
       COMMENT_BODY: ${{ github.event.comment.body }}
       COMMENT_AUTHOR: ${{ github.event.comment.user.login }}
       COMMENT_ACTION: ${{ github.event.action }}
-      
+
     steps:
       - name: Create comment
         if: github.event.action == 'created'
         run: |
           # Private Issue per Marker suchen
-          MARKER="<!-- SYNC: public_repo=$PUBLIC_OWNER/$PUBLIC_REPO public_issue=$PUBLIC_ISSUE_NUMBER -->"
+          MARKER="<!-- SYNC: public_repo=${PUB_REPO} public_issue=${ISSUE_NUMBER} -->"
           
           EXISTING=$(gh issue list \
             --repo "$PRIVATE_OWNER/$PRIVATE_REPO" \
