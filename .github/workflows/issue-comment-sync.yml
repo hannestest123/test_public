@@ -75,10 +75,8 @@ jobs:
             | tr -d '#')
 
           # Kommentar im private Repo anhand der public Comment-ID finden
-          EXISTING_COMMENT=$(gh issue view $EXISTING \
-            --repo "$PRIVATE_REPO" \
-            --json comments \
-            | jq -r ".comments[] | select(.body | contains(\"comment-id: $COMMENT_ID\")) | .databaseId")
+          EXISTING_COMMENT=$(gh api repos/$PRIVATE_OWNER/$PRIVATE_REPO/issues/$EXISTING/comments \
+            | jq -r ".[] | select(.body | contains(\"comment-id: $COMMENT_ID\")) | .id")
           
           echo "$EXISTING_COMMENT"
 
@@ -88,6 +86,13 @@ jobs:
           fi
 
           echo "Gefundener Kommentar: $EXISTING_COMMENT"
+          COMMENT_MARKER="<!-- comment-id: $COMMENT_ID -->"
+          cat > /tmp/comment.md << EOF
+          $COMMENT_MARKER
+          **@$COMMENT_AUTHOR** updated:
+
+          $COMMENT_BODY
+          EOF
 
           # Kommentar updaten
           gh api --method PATCH repos/$PRIVATE_OWNER/$PRIVATE_REPO/issues/comments/$EXISTING_COMMENT \
