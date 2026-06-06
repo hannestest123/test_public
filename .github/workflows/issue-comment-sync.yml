@@ -76,7 +76,7 @@ jobs:
 
           # Kommentar im private Repo anhand der public Comment-ID finden
           EXISTING_COMMENT=$(gh issue view $EXISTING \
-            --repo "$PRIVATE_OWNER/$PRIVATE_REPO" \
+            --repo "$PRIVATE_REPO" \
             --json comments \
             | jq -r ".comments[] | select(.body | contains(\"comment-id: $COMMENT_ID\")) | .databaseId")
           
@@ -111,7 +111,7 @@ jobs:
 
           # Kommentar im private Repo anhand der public Comment-ID finden
           EXISTING_COMMENT=$(gh issue view $EXISTING \
-            --repo "$PRIVATE_OWNER/$PRIVATE_REPO" \
+            --repo "$PRIVATE_REPO" \
             --json comments \
             | jq -r ".comments[] | select(.body | contains(\"comment-id: $COMMENT_ID\")) | .databaseId")
           
