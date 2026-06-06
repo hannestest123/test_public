@@ -12,11 +12,11 @@ jobs:
     if: github.event.comment.user.type != 'Bot'
     runs-on: ubuntu-latest
     env:
-      GH_TOKEN: ${{ secrets.SYNC_TO_PRIVATE_TOKEN }}
       PRIVATE_REPO: ${{ vars.PRIVATE_REPO }}
       PUBLIC_REPO: ${{ github.event.repository.name }}
       PUBLIC_ISSUE_NUMBER: ${{ github.event.issue.number }}
       COMMENT_ID: ${{ github.event.comment.id }}
+      COMMENT_URL: ${{ github.event.comment.url }}
       COMMENT_BODY: ${{ github.event.comment.body }}
       COMMENT_AUTHOR: ${{ github.event.comment.user.login }}
 
@@ -30,11 +30,11 @@ jobs:
             | jq -r '.items[0].number')
 
           if [ -z "$EXISTING" ] || [ "$EXISTING" = "null" ]; then
-            echo "Kein passendes private Issue gefunden"
+            echo "No private private Issue found"
             exit 1
           fi
 
-          echo "Gefundenes private Issue: #$EXISTING"
+          echo "Found private Issue: #$EXISTING"
           echo "issue_number=$EXISTING" >> $GITHUB_OUTPUT
 
           EXISTING_COMMENT=$(gh api "repos/$PRIVATE_REPO/issues/$EXISTING/comments" \
@@ -49,8 +49,9 @@ jobs:
         run: |
           cat > /tmp/comment.md << EOF
           <!-- comment-id: "$COMMENT_ID" -->
-          **@"$COMMENT_AUTHOR"** created comment:
 
+          **Source:** $ISSUE_URL
+          **From:** @$COMMENT_AUTHOR  
           $COMMENT_BODY
           EOF
 
@@ -71,14 +72,15 @@ jobs:
             exit 1
           fi
 
-          echo "Gefundener Kommentar: $EXISTING_COMMENT"
-
-          cat > /tmp/comment.md << EOF
-          <!-- comment-id: "$COMMENT_ID" -->
-          **@"$COMMENT_AUTHOR"** edited comment:
+          $COMMENT_BODY = "<!-- comment-id: "$COMMENT_ID" -->**@$COMMENT_AUTHOR** edited comment: $COMMENT_BODY
+          
+          **Source:** $ISSUE_URL
+          **From:** @$COMMENT_AUTHOR  (edited)
 
           $COMMENT_BODY
           EOF
+
+          echo "Update Comment: $EXISTING_COMMENT"
 
           gh api --method PATCH "repos/$PRIVATE_REPO/issues/comments/$EXISTING_COMMENT" \
             --field body=@/tmp/comment.md
@@ -89,10 +91,10 @@ jobs:
           EXISTING_COMMENT: ${{ steps.find.outputs.comment_id }}
         run: |
           if [ -z "$EXISTING_COMMENT" ] || [ "$EXISTING_COMMENT" = "null" ]; then
-            echo "Kein passender Kommentar gefunden für comment-id: $COMMENT_ID"
+            echo "No comment found for comment-id: $COMMENT_ID"
             exit 1
           fi
 
-          echo "Lösche Kommentar: $EXISTING_COMMENT"
+          echo "Delete Comment: $EXISTING_COMMENT"
 
           gh api --method DELETE "repos/$PRIVATE_REPO/issues/comments/$EXISTING_COMMENT"
