@@ -51,7 +51,7 @@ jobs:
           <!-- comment-id: "$COMMENT_ID" -->
           **@"$COMMENT_AUTHOR"** created comment:
 
-          "$COMMENT_BODY"
+          $COMMENT_BODY
           EOF
 
           echo "Syncing PUBLIC comment to $PRIVATE_REPO#$EXISTING"
@@ -77,7 +77,7 @@ jobs:
           <!-- comment-id: "$COMMENT_ID" -->
           **@"$COMMENT_AUTHOR"** edited comment:
 
-          "$COMMENT_BODY"
+          $COMMENT_BODY
           EOF
 
           gh api --method PATCH "repos/$PRIVATE_REPO/issues/comments/$EXISTING_COMMENT" \
