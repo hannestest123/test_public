@@ -79,9 +79,9 @@ jobs:
           echo "Repo: $PRIVATE_OWNER/$PRIVATE_REPO"
 
           # Kommentar im private Repo anhand des Markers finden
-          COMMENT_MARKER="<!-- comment-id: $COMMENT_ID -->"
+
           EXISTING_COMMENT=$(gh api repos/$PRIVATE_REPO/issues/$EXISTING/comments \
-            | jq -r ".[] | select(.body | contains($COMMENT_MARKER)) | .id")
+            | jq -r ".[] | select(.body | contains(\"comment-id: $COMMENT_ID\")) | .id")
 
           if [ -z "$EXISTING_COMMENT" ]; then
             echo "Kein passender Kommentar gefunden für comment-id: $COMMENT_ID"
@@ -123,9 +123,8 @@ jobs:
           echo "Repo: $PRIVATE_OWNER/$PRIVATE_REPO"
 
           # Kommentar im private Repo anhand des Markers finden
-          COMMENT_MARKER="<!-- comment-id: $COMMENT_ID -->"
           EXISTING_COMMENT=$(gh api repos/$PRIVATE_REPO/issues/$EXISTING/comments \
-            | jq -r ".[] | select(.body | contains($COMMENT_MARKER)) | .id")
+            | jq -r ".[] | select(.body | contains(\"comment-id: $COMMENT_ID\")) | .id")
 
           if [ -z "$EXISTING_COMMENT" ]; then
             echo "Kein passender Kommentar gefunden für comment-id: $COMMENT_ID"
