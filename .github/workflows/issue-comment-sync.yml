@@ -45,10 +45,7 @@ jobs:
 
           # Kommentar synchronisieren
           comment_marker="comment-id: $COMMENT_ID"
-          comment_body="<!-- comment-id: $COMMENT_ID -->
-**@$COMMENT_AUTHOR** schrieb:
-
-$COMMENT_BODY"
+          comment_body="<!-- comment-id: $COMMENT_ID -->\n**@$COMMENT_AUTHOR** schrieb:\n$COMMENT_BODY"
 
           existing=$(gh api repos/$PRIVATE_OWNER/$PRIVATE_REPO/issues/$private_number/comments \
             | jq -r ".[] | select(.body | contains(\"$comment_marker\")) | .id")
