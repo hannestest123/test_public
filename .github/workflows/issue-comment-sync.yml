@@ -3,7 +3,9 @@ name: Sync PUBLIC comments to private issue
 on:
   issue_comment:
     types: [created, edited, deleted]
-
+concurrency:
+  group: Issues # Make sure this specific workflow is only running one instance
+  cancel-in-progress: false
 permissions:
   contents: read
 
@@ -17,7 +19,7 @@ jobs:
       PUBLIC_REPO: ${{ github.event.repository.name }}
       PUBLIC_ISSUE_NUMBER: ${{ github.event.issue.number }}
       COMMENT_ID: ${{ github.event.comment.id }}
-      COMMENT_URL: ${{ github.event.comment.url }}
+      COMMENT_URL: ${{ github.event.comment.html_url }}
       COMMENT_BODY: ${{ github.event.comment.body }}
       COMMENT_AUTHOR: ${{ github.event.comment.user.login }}
 
@@ -50,7 +52,7 @@ jobs:
         run: |
           cat > /tmp/comment.md << EOF
           <!-- comment-id: "$COMMENT_ID" -->
-          
+
           **Source:** $COMMENT_URL
           **From:** @$COMMENT_AUTHOR  
 

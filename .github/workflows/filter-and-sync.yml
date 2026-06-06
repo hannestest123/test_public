@@ -4,7 +4,10 @@ on:
   issues:
     types: [opened, edited]
     # Only required types to ensure contributor authority
-
+concurrency:
+  group: Issues # Make sure this specific workflow is only running one instance
+  cancel-in-progress: false
+  
 permissions:
   issues: write
 
