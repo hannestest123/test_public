@@ -33,7 +33,8 @@ jobs:
             --state all \
             --search "$MARKER in:body" \
             --limit 1 \
-            | awk '{print $1}' || true)
+            | awk '{print $1}')
+            | tr -d '#' || true)
 
           if [ -z "$EXISTING" ]; then
             echo "Kein passendes private Issue gefunden"
@@ -53,7 +54,7 @@ jobs:
 
           echo "Syncing PUBLIC comment to $PRIVATE_REPO_REPO#$PUBLIC_ISSUE_NUMBER"
 
-          gh issue comment "$PUBLIC_ISSUE_NUMBER" \
+          gh issue comment "$EXISTING" \
             --repo "$PRIVATE_REPO" \
             --body "Commented by: $COMMENT_AUTHOR \n$COMMENT_BODY"
 
