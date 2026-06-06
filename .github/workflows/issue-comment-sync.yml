@@ -13,21 +13,21 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.SYNC_TO_PRIVATE_TOKEN }}
       PRIVATE_REPO: ${{ vars.PRIVATE_REPO }}
-      PUBLIC_OWNER: ${{ github.repository_owner }}
       PUBLIC_REPO: ${{ github.event.repository.name }}
       PUBLIC_ISSUE_NUMBER: ${{ github.event.issue.number }}
       COMMENT_ID: ${{ github.event.comment.id }}
       COMMENT_BODY: ${{ github.event.comment.body }}
       COMMENT_AUTHOR: ${{ github.event.comment.user.login }}
-      COMMENT_ACTION: ${{ github.event.action }}
 
     steps:
       - name: Create comment
         if: github.event.action == 'created' && github.event.comment.user.type != 'Bot'
         run: |
-          # Private Issue per Marker suchen
+
+          # Sucht das entsprechende ISSUE im private repository anhand des Markers (EXISTING hält dann die Nummer des ISSUES)
+
           MARKER="<!-- SYNC: public_repo=${PUB_REPO} public_issue=${ISSUE_NUMBER} -->"
-          
+
           EXISTING=$(gh issue list \
             --repo "$PRIVATE_REPO" \
             --state all \
@@ -43,7 +43,7 @@ jobs:
 
           echo "Gefundenes private Issue: #$EXISTING"
 
-          # Kommentar erstellen
+          # Erstellt Body des neuen Kommentars (enthält Autor, weil Autor des privaten Kommentars der Bot ist und es so nicht möglich wäre den Autor zu sehen)
           COMMENT_MARKER="<!-- comment-id: $COMMENT_ID -->"
           cat > /tmp/comment.md << EOF
           $COMMENT_MARKER
@@ -53,7 +53,8 @@ jobs:
           EOF
 
           echo "Syncing PUBLIC comment to $PRIVATE_REPO_REPO#$PUBLIC_ISSUE_NUMBER"
-
+          
+          # Kommentiert das ISSUE im privaten Repository mit oben erstellten Body
           gh issue comment "$EXISTING" \
             --repo "$PRIVATE_REPO" \
             --body-file /tmp/comment.md
@@ -63,7 +64,7 @@ jobs:
       - name: Edit comment
         if: github.event.action == 'edited' && github.event.comment.user.type != 'Bot'
         run: |
-          # Private Issue per Marker suchen
+          # Sucht das entsprechende ISSUE im private repository anhand des Markers (EXISTING hält dann die Nummer des ISSUES)
           MARKER="<!-- SYNC: public_repo=${PUB_REPO} public_issue=${ISSUE_NUMBER} -->"
           
           EXISTING=$(gh issue list \
@@ -76,13 +77,11 @@ jobs:
 
           echo "EXISTING: $EXISTING"
           echo "Repo: $PRIVATE_OWNER/$PRIVATE_REPO"
-          gh api repos/$PRIVATE_REPO/issues/$EXISTING
 
-          # Kommentar im private Repo anhand der public Comment-ID finden
+          # Kommentar im private Repo anhand des Markers finden
+          COMMENT_MARKER="<!-- comment-id: $COMMENT_ID -->"
           EXISTING_COMMENT=$(gh api repos/$PRIVATE_REPO/issues/$EXISTING/comments \
-            | jq -r ".[] | select(.body | contains(\"comment-id: $COMMENT_ID\")) | .id")
-          
-          echo "$EXISTING_COMMENT"
+            | jq -r ".[] | select(.body | contains($COMMENT_MARKER)) | .id")
 
           if [ -z "$EXISTING_COMMENT" ]; then
             echo "Kein passender Kommentar gefunden für comment-id: $COMMENT_ID"
@@ -90,6 +89,8 @@ jobs:
           fi
 
           echo "Gefundener Kommentar: $EXISTING_COMMENT"
+
+          # Erstellt geänderten Body
           COMMENT_MARKER="<!-- comment-id: $COMMENT_ID -->"
           cat > /tmp/comment.md << EOF
           $COMMENT_MARKER
@@ -98,9 +99,7 @@ jobs:
           $COMMENT_BODY
           EOF
 
-          echo "repos/$PRIVATE_REPO/issues/comments/$EXISTING_COMMENT"
-
-          # Kommentar updaten
+          # Kommentar updaten via github API Call
           gh api --method PATCH repos/$PRIVATE_REPO/issues/comments/$EXISTING_COMMENT \
             --field body=@/tmp/comment.md
 
@@ -109,7 +108,7 @@ jobs:
       - name: Delete comment
         if: github.event.action == 'deleted' && github.event.comment.user.type != 'Bot'
         run: |
-          # Private Issue per Marker suchen
+          # Sucht das entsprechende ISSUE im private repository anhand des Markers (EXISTING hält dann die Nummer des ISSUES)
           MARKER="<!-- SYNC: public_repo=${PUB_REPO} public_issue=${ISSUE_NUMBER} -->"
           
           EXISTING=$(gh issue list \
@@ -122,13 +121,11 @@ jobs:
 
           echo "EXISTING: $EXISTING"
           echo "Repo: $PRIVATE_OWNER/$PRIVATE_REPO"
-          gh api repos/$PRIVATE_REPO/issues/$EXISTING
 
-          # Kommentar im private Repo anhand der public Comment-ID finden
+          # Kommentar im private Repo anhand des Markers finden
+          COMMENT_MARKER="<!-- comment-id: $COMMENT_ID -->"
           EXISTING_COMMENT=$(gh api repos/$PRIVATE_REPO/issues/$EXISTING/comments \
-            | jq -r ".[] | select(.body | contains(\"comment-id: $COMMENT_ID\")) | .id")
-          
-          echo "$EXISTING_COMMENT"
+            | jq -r ".[] | select(.body | contains($COMMENT_MARKER)) | .id")
 
           if [ -z "$EXISTING_COMMENT" ]; then
             echo "Kein passender Kommentar gefunden für comment-id: $COMMENT_ID"
@@ -137,9 +134,16 @@ jobs:
 
           echo "Gefundener Kommentar: $EXISTING_COMMENT"
 
-          echo "repos/$PRIVATE_REPO/issues/comments/$EXISTING_COMMENT"
+          # Erstellt geänderten Body
+          COMMENT_MARKER="<!-- comment-id: $COMMENT_ID -->"
+          cat > /tmp/comment.md << EOF
+          $COMMENT_MARKER
+          **@$COMMENT_AUTHOR** edited comment:
 
-          # Kommentar updaten
+          $COMMENT_BODY
+          EOF
+
+          # Kommentar löschen via Github API Call
           gh api --method DELETE repos/$PRIVATE_REPO/issues/comments/$EXISTING_COMMENT
 
 
