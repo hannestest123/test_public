@@ -56,7 +56,7 @@ jobs:
 
           gh issue comment "$EXISTING" \
             --repo "$PRIVATE_REPO" \
-            --body "Commented by: $COMMENT_AUTHOR \n$COMMENT_BODY"
+            --body-file /tmp/comment.md
 
 
 
