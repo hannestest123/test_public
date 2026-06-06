@@ -33,7 +33,7 @@ jobs:
             --state all \
             --search "$MARKER in:body" \
             --limit 1 \
-            | awk '{print $1}') \
+            | awk '{print $1}' \
             | tr -d '#' || true)
 
           if [ -z "$EXISTING" ]; then
