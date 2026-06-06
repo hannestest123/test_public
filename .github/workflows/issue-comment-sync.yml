@@ -3,9 +3,6 @@ name: Sync PUBLIC comments to private issue
 on:
   issue_comment:
     types: [created, edited, deleted]
-concurrency:
-  group: Issues # Make sure this specific workflow is only running one instance
-  cancel-in-progress: false
 permissions:
   contents: read
 
@@ -74,7 +71,7 @@ jobs:
           EXISTING_COMMENT: ${{ steps.find.outputs.comment_id }}
         run: |
           if [ -z "$EXISTING_COMMENT" ] || [ "$EXISTING_COMMENT" = "null" ]; then
-            echo "Kein passender Kommentar gefunden für comment-id: $COMMENT_ID"
+            echo "No comment found for comment-id: $COMMENT_ID"
             exit 1
           fi
 
