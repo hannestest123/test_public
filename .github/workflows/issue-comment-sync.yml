@@ -10,7 +10,7 @@ jobs:
     steps:
       - name: Sync to private repo
         env:
-          GH_TOKEN: ${{ secrets.PRIVATE_REPO_TOKEN }}
+          GH_TOKEN: ${{ secrets.SYNC_TO_PRIVATE_TOKEN }}
           PUBLIC_OWNER: ${{ github.repository_owner }}
           PUBLIC_REPO: ${{ github.event.repository.name }}
           PUBLIC_ISSUE_NUMBER: ${{ github.event.issue.number }}
