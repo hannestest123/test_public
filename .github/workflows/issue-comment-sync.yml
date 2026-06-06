@@ -51,6 +51,11 @@ jobs:
           $COMMENT_BODY
           EOF
 
+          gh issue_comment PUBLIC_ISSUE_NUMBER
+            --repo "$PRIVATE_REPO"
+            --body "Commented by: $COMMENT_AUTHOR \n$COMMENT_BODY"
+
+
 
       - name: Edit comment
         if: github.event.action == 'edited'
