@@ -53,8 +53,8 @@ jobs:
 
           echo "Syncing PUBLIC comment to $PRIVATE_REPO_REPO#$PUBLIC_ISSUE_NUMBER"
 
-          gh issue comment "$PUBLIC_ISSUE_NUMBER"
-            --repo "$PRIVATE_REPO"
+          gh issue comment "$PUBLIC_ISSUE_NUMBER" \
+            --repo "$PRIVATE_REPO" \
             --body "Commented by: $COMMENT_AUTHOR \n$COMMENT_BODY"
 
 
