@@ -120,11 +120,13 @@ jobs:
             | awk '{print $1}' \
             | tr -d '#')
 
+          echo "EXISTING: $EXISTING"
+          echo "Repo: $PRIVATE_OWNER/$PRIVATE_REPO"
+          gh api repos/$PRIVATE_REPO/issues/$EXISTING
+
           # Kommentar im private Repo anhand der public Comment-ID finden
-          EXISTING_COMMENT=$(gh issue view $EXISTING \
-            --repo "$PRIVATE_REPO" \
-            --json comments \
-            | jq -r ".comments[] | select(.body | contains(\"comment-id: $COMMENT_ID\")) | .databaseId")
+          EXISTING_COMMENT=$(gh api repos/$PRIVATE_REPO/issues/$EXISTING/comments \
+            | jq -r ".[] | select(.body | contains(\"comment-id: $COMMENT_ID\")) | .id")
           
           echo "$EXISTING_COMMENT"
 
@@ -135,9 +137,10 @@ jobs:
 
           echo "Gefundener Kommentar: $EXISTING_COMMENT"
 
+          echo "repos/$PRIVATE_REPO/issues/comments/$EXISTING_COMMENT"
+
           # Kommentar updaten
-          gh api --method DELETE repos/$PRIVATE_OWNER/$PRIVATE_REPO/issues/comments/$EXISTING_COMMENT \
-            --field body=@/tmp/comment.md
+          gh api --method DELETE repos/$PRIVATE_REPO/issues/comments/$EXISTING_COMMENT
 
 
     
