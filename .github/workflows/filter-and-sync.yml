@@ -116,6 +116,7 @@ jobs:
 
       - name: Create/update private mirror issue
         env:
+          GH_TOKEN: ${{ secrets.SYNC_TO_PRIVATE_TOKEN }}
           PRIVATE_REPO: ${{ vars.PRIVATE_REPO }}
           TEAM: ${{ vars.EDITORS_TEAM }}
           TYPE_LABELS: ${{ needs.filter.outputs.type_labels }}
@@ -151,7 +152,7 @@ jobs:
 
           ---
 
-          $BODY
+          ${{ github.event.issue.body }}
           EOF
 
           # Create Private Issue if new
