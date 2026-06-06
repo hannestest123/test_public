@@ -2,7 +2,7 @@ name: Sync PUBLIC comments to public issue
 
 on:
   issue_comment:
-    types: [created]
+    types: [created, edited, deleted]
 
 permissions:
   contents: read
