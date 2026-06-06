@@ -50,8 +50,8 @@ jobs:
         run: |
           cat > /tmp/comment.md << EOF
           <!-- comment-id: "$COMMENT_ID" -->
-
-          **Source:** $ISSUE_URL
+          
+          **Source:** $COMMENT_URL
           **From:** @$COMMENT_AUTHOR  
 
           ---
@@ -78,7 +78,7 @@ jobs:
 
           $COMMENT_BODY = "<!-- comment-id: "$COMMENT_ID" -->**@$COMMENT_AUTHOR** edited comment: $COMMENT_BODY
           
-          **Source:** $ISSUE_URL
+          **Source:** $COMMENT_URL
           **From:** @$COMMENT_AUTHOR  (edited)  
 
           ---
