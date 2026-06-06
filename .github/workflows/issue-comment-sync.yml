@@ -23,7 +23,7 @@ jobs:
 
     steps:
       - name: Create comment
-        if: github.event.action == 'created'
+        if: github.event.action == 'created' && github.event.comment.user.type != 'Bot'
         run: |
           # Private Issue per Marker suchen
           MARKER="<!-- SYNC: public_repo=${PUB_REPO} public_issue=${ISSUE_NUMBER} -->"
@@ -47,7 +47,7 @@ jobs:
           COMMENT_MARKER="<!-- comment-id: $COMMENT_ID -->"
           cat > /tmp/comment.md << EOF
           $COMMENT_MARKER
-          **@$COMMENT_AUTHOR** schrieb:
+          **@$COMMENT_AUTHOR** commented:
 
           $COMMENT_BODY
           EOF
@@ -61,10 +61,46 @@ jobs:
 
 
       - name: Edit comment
-        if: github.event.action == 'edited'
+        if: github.event.action == 'edited' && github.event.comment.user.type != 'Bot'
         run: |
+          # Kommentar im private Repo anhand der public Comment-ID finden
+          EXISTING_COMMENT=$(gh issue view $EXISTING \
+            --repo "$PRIVATE_OWNER/$PRIVATE_REPO" \
+            --json comments \
+            | jq -r ".comments[] | select(.body | contains(\"comment-id: $COMMENT_ID\")) | .databaseId")
+
+          if [ -z "$EXISTING_COMMENT" ]; then
+            echo "Kein passender Kommentar gefunden für comment-id: $COMMENT_ID"
+            exit 1
+          fi
+
+          echo "Gefundener Kommentar: $EXISTING_COMMENT"
+
+          # Kommentar updaten
+          gh api --method PATCH repos/$PRIVATE_OWNER/$PRIVATE_REPO/issues/comments/$EXISTING_COMMENT \
+            --field body=@/tmp/comment.md
+
+
 
       - name: Delete comment
-        if: github.event.action == 'deleted'
+        if: github.event.action == 'deleted' && github.event.comment.user.type != 'Bot'
         run: |
+          # Kommentar im private Repo anhand der public Comment-ID finden
+          EXISTING_COMMENT=$(gh issue view $EXISTING \
+            --repo "$PRIVATE_OWNER/$PRIVATE_REPO" \
+            --json comments \
+            | jq -r ".comments[] | select(.body | contains(\"comment-id: $COMMENT_ID\")) | .databaseId")
+
+          if [ -z "$EXISTING_COMMENT" ]; then
+            echo "Kein passender Kommentar gefunden für comment-id: $COMMENT_ID"
+            exit 1
+          fi
+
+          echo "Gefundener Kommentar: $EXISTING_COMMENT"
+
+          # Kommentar updaten
+          gh api --method DELEDTE repos/$PRIVATE_OWNER/$PRIVATE_REPO/issues/comments/$EXISTING_COMMENT \
+            --field body=@/tmp/comment.md
+
+
     
