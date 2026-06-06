@@ -126,12 +126,11 @@ jobs:
           ISSUE_URL: ${{ github.event.issue.html_url }}
           ACTION: ${{ github.event.action }}
           TITLE: ${{ github.event.issue.title }}
-          #BODY: ${{ github.event.issue.body }}
+          BODY: ${{ github.event.issue.body }}
           STATE: ${{ github.event.issue.state }}
           AUTHOR: ${{ github.event.issue.user.login }}
         run: |
           set -euo pipefail
-          BODY="${{ github.event.issue.body }}"
           # Create hidden marker for syncing back (Unique) 
           MARKER="<!-- SYNC: public_repo="$PUB_REPO" public_issue="$ISSUE_NUMBER" -->"
 
