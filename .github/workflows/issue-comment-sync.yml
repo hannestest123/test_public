@@ -47,7 +47,7 @@ jobs:
           COMMENT_MARKER="<!-- comment-id: $COMMENT_ID -->"
           cat > /tmp/comment.md << EOF
           $COMMENT_MARKER
-          **@$COMMENT_AUTHOR** commented:
+          **@$COMMENT_AUTHOR** created comment:
 
           $COMMENT_BODY
           EOF
@@ -93,7 +93,7 @@ jobs:
           COMMENT_MARKER="<!-- comment-id: $COMMENT_ID -->"
           cat > /tmp/comment.md << EOF
           $COMMENT_MARKER
-          **@$COMMENT_AUTHOR** updated:
+          **@$COMMENT_AUTHOR** edited comment:
 
           $COMMENT_BODY
           EOF
