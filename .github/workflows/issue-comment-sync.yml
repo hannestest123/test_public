@@ -10,59 +10,52 @@ permissions:
 jobs:
   sync-public-comment:
     runs-on: ubuntu-latest
-
+    env:
+      GH_TOKEN: ${{ secrets.PRIVATE_REPO_TOKEN }}
+      PUBLIC_OWNER: ${{ github.repository_owner }}
+      PUBLIC_REPO: ${{ github.event.repository.name }}
+      PUBLIC_ISSUE_NUMBER: ${{ github.event.issue.number }}
+      COMMENT_ID: ${{ github.event.comment.id }}
+      COMMENT_BODY: ${{ github.event.comment.body }}
+      COMMENT_AUTHOR: ${{ github.event.comment.user.login }}
+      COMMENT_ACTION: ${{ github.event.action }}
+      
     steps:
-      - name: Sync PUBLIC comment
-        shell: bash
-        env:
-          GH_TOKEN: ${{ secrets.SYNC_TO_PRIVATE_TOKEN }}
-          PRIVATE_REPO: ${{ vars.PRIVATE_REPO }}
-          TEAM: ${{ vars.EDITORS_TEAM }}
-          TYPE_LABELS: ${{ needs.filter.outputs.type_labels }}
-          PUB_REPO: ${{ github.repository }}
-          ISSUE_BODY: ${{ github.event.issue.body }}
-          ISSUE_URL: ${{ github.event.issue.html_url }}
-          ISSUE_NUMBER: ${{ github.event.issue.number }}
-          COMMENT_BODY: ${{ github.event.comment.body }}
-          COMMENT_AUTHOR: ${{ github.event.comment.user.login}}
-          ACTION: ${{ github.event.action }}
-          TITLE: ${{ github.event.issue.title }}
-          BODY: ${{ github.event.issue.body }}
-          STATE: ${{ github.event.issue.state }}
-          AUTHOR: ${{ github.event.issue.user.login }}
+      - name: Create comment
+        if: github.event.action == 'created'
         run: |
-          set -euo pipefail
-
-          # Create hidden marker for searching correct Issue
-          MARKER="<!-- SYNC: public_repo=${PUB_REPO} public_issue=${ISSUE_NUMBER} -->"
-
-          # Find existing private issue by marker
+          # Private Issue per Marker suchen
+          MARKER="<!-- SYNC: public_repo=$PUBLIC_OWNER/$PUBLIC_REPO public_issue=$PUBLIC_ISSUE_NUMBER -->"
+          
           EXISTING=$(gh issue list \
-            --repo "$PRIVATE_REPO" \
+            --repo "$PRIVATE_OWNER/$PRIVATE_REPO" \
             --state all \
             --search "$MARKER in:body" \
             --limit 1 \
             | awk '{print $1}' || true)
-            # --> Without "--state all" it searches only open issues --> Closed Issues can create dublicate
-          cat > /tmp/body.md <<EOF
-          ${MARKER}
 
-          **Source:** "$ISSUE_URL"  
-          **From:** @"$AUTHOR"  
-          **State (public):** "$STATE"
+          if [ -z "$EXISTING" ]; then
+            echo "Kein passendes private Issue gefunden"
+            exit 1
+          fi
 
-          ---
+          echo "Gefundenes private Issue: #$EXISTING"
 
-          "${BODY}"
+          # Kommentar erstellen
+          COMMENT_MARKER="<!-- comment-id: $COMMENT_ID -->"
+          cat > /tmp/comment.md << EOF
+          $COMMENT_MARKER
+          **@$COMMENT_AUTHOR** schrieb:
+
+          $COMMENT_BODY
           EOF
 
-          echo "$EXISTING"
 
-          # Comment if issue exists in private
-          echo "Synching comment to $PRIVATE_REPO"
+      - name: Edit comment
+        if: github.event.action == 'edited'
+        run: |
 
-          gh issue comment "$EXISTING" \
-            --repo "$PRIVATE_REPO"
-            --body "Commented by: $COMMENT_AUTHOR \n $COMMENT_BODY_BODY"
-
-
+      - name: Delete comment
+        if: github.event.action == 'deleted'
+        run: |
+    
