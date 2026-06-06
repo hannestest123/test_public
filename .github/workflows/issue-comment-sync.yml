@@ -12,6 +12,7 @@ jobs:
     if: github.event.comment.user.type != 'Bot'
     runs-on: ubuntu-latest
     env:
+      GH_TOKEN: ${{ secrets.SYNC_TO_PRIVATE_TOKEN }}
       PRIVATE_REPO: ${{ vars.PRIVATE_REPO }}
       PUBLIC_REPO: ${{ github.event.repository.name }}
       PUBLIC_ISSUE_NUMBER: ${{ github.event.issue.number }}
