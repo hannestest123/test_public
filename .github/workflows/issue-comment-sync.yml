@@ -24,6 +24,7 @@ jobs:
       - name: Find private issue and comment
         id: find
         run: |
+          set -euo pipefail
           MARKER="<!-- SYNC: public_repo=$PUBLIC_REPO public_issue=$PUBLIC_ISSUE_NUMBER -->"
 
           EXISTING=$(gh api "search/issues?q=$(jq -rn --arg q "$MARKER repo:$PRIVATE_REPO is:issue" '$q | @uri')" \
@@ -39,7 +40,8 @@ jobs:
 
           EXISTING_COMMENT=$(gh api "repos/$PRIVATE_REPO/issues/$EXISTING/comments" \
             | jq -r ".[] | select(.body | contains(\"comment-id: $COMMENT_ID\")) | .id")
-
+              
+          echo "Found private Comment: #$EXISTING_COMMENT"
           echo "comment_id=$EXISTING_COMMENT" >> $GITHUB_OUTPUT
 
       - name: Create comment
@@ -47,6 +49,7 @@ jobs:
         env:
           EXISTING: ${{ steps.find.outputs.issue_number }}
         run: |
+          set -euo pipefail
           cat > /tmp/comment.md << EOF
           <!-- comment-id: "$COMMENT_ID" -->
 
@@ -70,6 +73,7 @@ jobs:
           EXISTING: ${{ steps.find.outputs.issue_number }}
           EXISTING_COMMENT: ${{ steps.find.outputs.comment_id }}
         run: |
+          set -euo pipefail
           if [ -z "$EXISTING_COMMENT" ] || [ "$EXISTING_COMMENT" = "null" ]; then
             echo "No comment found for comment-id: $COMMENT_ID"
             exit 1
@@ -96,6 +100,7 @@ jobs:
         env:
           EXISTING_COMMENT: ${{ steps.find.outputs.comment_id }}
         run: |
+          set -euo pipefail
           if [ -z "$EXISTING_COMMENT" ] || [ "$EXISTING_COMMENT" = "null" ]; then
             echo "No comment found for comment-id: $COMMENT_ID"
             exit 1
