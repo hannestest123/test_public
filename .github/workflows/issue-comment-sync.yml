@@ -53,6 +53,9 @@ jobs:
 
           **Source:** $ISSUE_URL
           **From:** @$COMMENT_AUTHOR  
+
+          ---
+
           $COMMENT_BODY
           EOF
 
@@ -76,8 +79,10 @@ jobs:
           $COMMENT_BODY = "<!-- comment-id: "$COMMENT_ID" -->**@$COMMENT_AUTHOR** edited comment: $COMMENT_BODY
           
           **Source:** $ISSUE_URL
-          **From:** @$COMMENT_AUTHOR  (edited)
+          **From:** @$COMMENT_AUTHOR  (edited)  
 
+          ---
+        
           $COMMENT_BODY
           EOF
 
