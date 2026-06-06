@@ -23,7 +23,6 @@ jobs:
           ISSUE_BODY: ${{ github.event.issue.body }}
           ISSUE_URL: ${{ github.event.issue.html_url }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
-          ISSUE_URL: ${{ github.event.issue.html_url }}
           COMMENT_BODY: ${{ github.event.comment.body }}
           COMMENT_AUTHOR: ${{ github.event.comment.user.login}}
           ACTION: ${{ github.event.action }}
@@ -34,7 +33,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          # Create hidden marker for syncing back (Unique) 
+          # Create hidden marker for searching correct Issue
           MARKER="<!-- SYNC: public_repo=${PUB_REPO} public_issue=${ISSUE_NUMBER} -->"
 
           # Find existing private issue by marker
