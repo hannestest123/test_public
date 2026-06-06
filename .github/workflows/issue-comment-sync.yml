@@ -1,0 +1,69 @@
+name: Sync Issue to Private Repo
+
+on:
+  issue_comment:
+    types: [created, edited, deleted]
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sync to private repo
+        env:
+          GH_TOKEN: ${{ secrets.PRIVATE_REPO_TOKEN }}
+          PUBLIC_OWNER: ${{ github.repository_owner }}
+          PUBLIC_REPO: ${{ github.event.repository.name }}
+          PUBLIC_ISSUE_NUMBER: ${{ github.event.issue.number }}
+          EVENT_NAME: ${{ github.event_name }}
+          COMMENT_ID: ${{ github.event.comment.id }}
+          COMMENT_BODY: ${{ github.event.comment.body }}
+          COMMENT_AUTHOR: ${{ github.event.comment.user.login }}
+          COMMENT_ACTION: ${{ github.event.action }}
+          PRIVATE_OWNER: dein-org
+          PRIVATE_REPO: dein-private-repo
+        run: |
+          # Public Issue laden
+          issue=$(gh api repos/$PUBLIC_OWNER/$PUBLIC_REPO/issues/$PUBLIC_ISSUE_NUMBER)
+          title=$(echo "$issue" | jq -r '.title')
+          body=$(echo "$issue" | jq -r '.body')
+          state=$(echo "$issue" | jq -r '.state')
+          author=$(echo "$issue" | jq -r '.user.login')
+          labels=$(echo "$issue" | jq '[.labels[].name]')
+
+          # Private Issue per Marker suchen
+          marker="SYNC: public_repo=$PUBLIC_OWNER/$PUBLIC_REPO public_issue=$PUBLIC_ISSUE_NUMBER"
+          encoded=$(jq -rn --arg q "$marker repo:$PRIVATE_OWNER/$PRIVATE_REPO is:issue" '$q | @uri')
+          private_issue=$(gh api "search/issues?q=$encoded")
+          private_number=$(echo "$private_issue" | jq -r '.items[0].number')
+
+          if [ "$private_number" = "null" ]; then
+            echo "Kein passendes private Issue gefunden für $PUBLIC_OWNER/$PUBLIC_REPO#$PUBLIC_ISSUE_NUMBER"
+            exit 1
+          fi
+
+          echo "Gefundenes private Issue: #$private_number"
+
+          # Kommentar synchronisieren
+          comment_marker="comment-id: $COMMENT_ID"
+          comment_body="<!-- comment-id: $COMMENT_ID -->
+**@$COMMENT_AUTHOR** schrieb:
+
+$COMMENT_BODY"
+
+          existing=$(gh api repos/$PRIVATE_OWNER/$PRIVATE_REPO/issues/$private_number/comments \
+            | jq -r ".[] | select(.body | contains(\"$comment_marker\")) | .id")
+
+          if [ "$COMMENT_ACTION" = "deleted" ] && [ -n "$existing" ]; then
+            echo "Lösche Kommentar $existing"
+            gh api --method DELETE repos/$PRIVATE_OWNER/$PRIVATE_REPO/issues/comments/$existing
+
+          elif [ "$COMMENT_ACTION" = "edited" ] && [ -n "$existing" ]; then
+            echo "Aktualisiere Kommentar $existing"
+            gh api --method PATCH repos/$PRIVATE_OWNER/$PRIVATE_REPO/issues/comments/$existing \
+              --field body="$comment_body"
+
+          elif [ "$COMMENT_ACTION" = "created" ] && [ -z "$existing" ]; then
+            echo "Erstelle neuen Kommentar"
+            gh api --method POST repos/$PRIVATE_OWNER/$PRIVATE_REPO/issues/$private_number/comments \
+              --field body="$comment_body"
+          fi
