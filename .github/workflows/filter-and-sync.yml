@@ -154,7 +154,7 @@ jobs:
 
           ---
 
-          ${{ github.event.issue.body }}
+          $BODY
           EOF
 
           # Create Private Issue if new
