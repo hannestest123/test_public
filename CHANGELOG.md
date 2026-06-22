@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.1 — 2026-06-22 07:53:22 UTC
+
+### Book
+- Updated PDF
+
+### Added
+- book/Advanced Programming Paradigms in C++.pdf
+
 ## v0.93 — 2026-04-17 06:25:42 UTC
 
 ### Book
